@@ -30,7 +30,9 @@ export const Input = styled.input`
   font-size: 16px;
   &[type="submit"] {
     cursor: pointer;
-    &: hover {
+    background-color: #1d9bf0;
+    color: white;
+    &:hover {
       opacity: 0.8;
     }
   }
@@ -45,5 +47,5 @@ export const Switcher = styled.span`
   margin-top: 20px;
   a {
     color: #1d9bf0;
-  export }
+  }
 `;
