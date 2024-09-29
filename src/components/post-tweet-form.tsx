@@ -63,13 +63,24 @@ export default function PostTweeForm() {
   const [loading, setLoading] = useState(false);
   const [tweet, setTweet] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const [errorMessage, setErrorMessage] = useState("");
+
   const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setTweet(e.target.value);
   };
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = e.target;
     if (files && files.length === 1) {
-      setFile(files[0]);
+      const file = files[0];
+      const maxFileSize = 1048576;
+      if (file.size <= maxFileSize) {
+        setFile(file);
+        setErrorMessage("");
+      } else {
+        setFile(null);
+        setErrorMessage("File size exceeded 1MB.");
+        setTimeout(() => setErrorMessage(""), 3000);
+      }
     }
   };
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -114,6 +125,7 @@ export default function PostTweeForm() {
         value={tweet}
         placeholder="What is happening?!"
       />
+      {errorMessage && <div style={{ color: "red" }}>{errorMessage}</div>}
       <AttachFileButton htmlFor="file">
         {file ? "Photo added ✅" : "Add photo"}
       </AttachFileButton>
