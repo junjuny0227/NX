@@ -59,7 +59,7 @@ const SubmitBtn = styled.input`
   }
 `;
 
-export default function PostTweeForm() {
+export default function PostTweetForm() {
   const [loading, setLoading] = useState(false);
   const [tweet, setTweet] = useState("");
   const [file, setFile] = useState<File | null>(null);
