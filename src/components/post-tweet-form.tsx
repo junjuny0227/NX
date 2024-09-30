@@ -77,6 +77,7 @@ export default function PostTweeForm() {
         setFile(file);
         setErrorMessage("");
       } else {
+        e.target.value = "";
         setFile(null);
         setErrorMessage("File size exceeded 1MB.");
         setTimeout(() => setErrorMessage(""), 3000);
