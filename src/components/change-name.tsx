@@ -8,8 +8,8 @@ import {
   where,
   getDocs,
   updateDoc,
-} from "firebase/firestore"; // Firestore 관련 함수 추가
-import { db } from "../firebase"; // db 임포트 추가
+} from "firebase/firestore";
+import { db } from "../firebase";
 
 const Wrapper = styled.div`
   background-color: rgba(91, 112, 131, 0.4);
@@ -56,7 +56,7 @@ const Label = styled.label`
   width: 100%;
 `;
 
-const Form = styled.form`
+const Form = styled.form<{ $focused: boolean }>`
   width: 100%;
   height: 60px;
   border: 1px solid
@@ -68,7 +68,7 @@ const Form = styled.form`
   justify-content: space-between;
 `;
 
-const Text = styled.span`
+const Text = styled.span<{ $focused: boolean }>`
   color: ${(props) => (props.$focused ? "#1d9bf0" : "#71767b")};
   font-size: 13px;
   font-weight: 400;
@@ -88,18 +88,17 @@ const Input = styled.input`
   }
 `;
 
-export default function ChangeName({ closeModal }) {
+interface ChangeNameProps {
+  closeModal: () => void;
+}
+
+export default function ChangeName({ closeModal }: ChangeNameProps) {
   const [focused, setFocused] = useState(false);
   const [loading, setLoading] = useState(false);
   const [newName, setNewName] = useState("");
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {
-      target: { name, value },
-    } = e;
-    if (name === "name") {
-      setNewName(value);
-    }
+    setNewName(e.currentTarget.value);
   };
 
   const updateTweetsUsername = async (oldName: string) => {
@@ -110,11 +109,18 @@ export default function ChangeName({ closeModal }) {
     const q = query(tweetsRef, where("userId", "==", user.uid));
     const querySnapshot = await getDocs(q);
 
+    if (querySnapshot.empty) {
+      console.log("No matching documents.");
+      return;
+    }
+
+    console.log("Updating tweets from", oldName, "to", newName); // oldName 사용 예시
+
     const updates = querySnapshot.docs.map((doc) => {
       return updateDoc(doc.ref, { username: newName });
     });
 
-    await Promise.all(updates); // 모든 업데이트를 동시에 수행
+    await Promise.all(updates);
   };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -123,7 +129,8 @@ export default function ChangeName({ closeModal }) {
 
     try {
       const user = auth.currentUser;
-      const oldName = user.displayName; // 이전 이름 저장
+      if (!user) return;
+      const oldName = user.displayName || ""; // 이전 이름 저장
       await updateProfile(user, {
         displayName: newName,
       });
@@ -140,6 +147,7 @@ export default function ChangeName({ closeModal }) {
   return (
     <Wrapper>
       <Container>
+        {loading && <span>Loading...</span>} {/* 로딩 중 상태 표시 */}
         <SvgIcon
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
