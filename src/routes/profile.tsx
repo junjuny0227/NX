@@ -13,6 +13,7 @@ import {
 } from "firebase/firestore";
 import { ITweet } from "../components/timeline";
 import Tweet from "../components/tweet";
+import ChangeName from "../components/change-name";
 
 const Wrapper = styled.div`
   display: flex;
@@ -22,9 +23,9 @@ const Wrapper = styled.div`
 `;
 
 const AvatarUpload = styled.label`
-  width: 80px;
+  width: 120px;
   overflow: hidden;
-  height: 80px;
+  height: 120px;
   border-radius: 50%;
   background-color: #1d9bf0;
   cursor: pointer;
@@ -48,6 +49,17 @@ const Name = styled.span`
   font-size: 22px;
 `;
 
+const ChangeBtn = styled.button`
+  background-color: white;
+  font-weight: 600;
+  border: 0;
+  font-size: 12px;
+  padding: 5px 10px;
+  text-transform: uppercase;
+  border-radius: 5px;
+  cursor: pointer;
+`;
+
 const Tweets = styled.div`
   display: flex;
   width: 100%;
@@ -59,6 +71,7 @@ export default function Profile() {
   const user = auth.currentUser;
   const [avatar, setAvatar] = useState(user?.photoURL);
   const [tweets, setTweets] = useState<ITweet[]>([]);
+  const [ModalOpen, setModalOpen] = useState(false);
 
   const onAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = e.target;
@@ -98,6 +111,8 @@ export default function Profile() {
   useEffect(() => {
     fetchTweets();
   }, []);
+  const openModal = () => setModalOpen(true);
+  const closeModal = () => setModalOpen(false);
 
   return (
     <Wrapper>
@@ -122,6 +137,8 @@ export default function Profile() {
         accept="image/*"
       />
       <Name>{user?.displayName ?? "Anonymous"}</Name>
+      <ChangeBtn onClick={openModal}>Change Name</ChangeBtn>
+      {ModalOpen ? <ChangeName closeModal={closeModal} /> : null}
       <Tweets>
         {tweets.map((tweet) => (
           <Tweet key={tweet.id} {...tweet} />
